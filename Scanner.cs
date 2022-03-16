@@ -1,4 +1,23 @@
+using System.Collections.Generic;
 public class Scanner {
+    private static Dictionary<string, TokenType> keywords = new Dictionary<string, TokenType>() {
+        {"and", TokenType.AND},
+        {"class", TokenType.CLASS},
+        {"else", TokenType.ELSE},
+        {"false", TokenType.FALSE},
+        {"for", TokenType.FOR},
+        {"fun", TokenType.FUN},
+        {"if", TokenType.IF},
+        {"nil", TokenType.NIL},
+        {"or", TokenType.OR},
+        {"print", TokenType.PRINT},
+        {"return", TokenType.RETURN},
+        {"super", TokenType.SUPER},
+        {"this", TokenType.THIS},
+        {"true", TokenType.TRUE},
+        {"var", TokenType.VAR},
+        {"while", TokenType.WHILE},
+    };
     private string source;
     private List<Token> tokens = new List<Token>();
     private int start = 0;
@@ -60,8 +79,75 @@ public class Scanner {
             case '\n':
                 line++;
                 break;
-            default: Lox.Error(line, "Unexpected character."); break;
+            case '"': String(); break;
+            default: 
+                if(IsDigit(c)) {
+                    Number();
+                } else if(IsAlpha(c)) {
+                    Identifier();
+                } else {
+                    Lox.Error(line, "Unexpected character."); 
+                }
+                break;
         }
+    }
+
+    private void Identifier() {
+        while(IsAlphaNumeric(Peek())) Advance();
+
+        var text = source.Substring(start, current - start);
+        if(keywords.ContainsKey(text))
+            AddToken(keywords[text]); 
+        else
+            AddToken(TokenType.IDENTIFIER);
+    }
+
+    private bool IsAlpha(char c) {
+        return  (c >= 'a' && c <= 'z') ||
+                (c >= 'A' && c <= 'Z') ||
+                c == '_';
+    }
+
+    private bool IsAlphaNumeric(char c) {
+        return IsAlpha(c) || IsDigit(c);
+    }
+
+    private bool IsDigit(char c) {
+        return c >= '0' && c <= '9'; 
+    }
+
+    private void Number() {
+        while(IsDigit(Peek())) Advance();
+        // Look for a fractional part.
+        if(Peek() == '.' && IsDigit(PeekNext())) {
+            Advance();
+            while(IsDigit(Peek())) Advance();
+        }
+
+        AddToken(TokenType.NUMBER, double.Parse(source.Substring(start, current - start)));
+    }
+
+    private char PeekNext() {
+        if(current + 1 >= source.Length) return '\0';
+        return source[current + 1];
+    }
+
+    private void String() {
+        while(Peek() != '"' && !IsAtEnd()) {
+            if(Peek() == '\n') line++;
+            Advance();
+        }
+
+        if(IsAtEnd()) {
+            Lox.Error(line, "Unterminated string.");
+            return;
+        }
+        
+        // The closing ".
+        Advance();
+
+        string value = source.Substring(start + 1, current - start - 2);
+        AddToken(TokenType.STRING, value);
     }
 
     private char Peek() {
@@ -86,8 +172,8 @@ public class Scanner {
         AddToken(type, null);
     }
 
-    private void AddToken(TokenType type, Object literal) {
-        String text = source.Substring(start, current - start);
+    private void AddToken(TokenType type, object literal) {
+        string text = source.Substring(start, current - start);
         tokens.Add(new Token(type, text, literal, line));
     }
 

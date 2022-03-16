@@ -1,10 +1,10 @@
 public class Token {
-    TokenType type;
-    string lexeme;
-    Object literal;
-    int line;
+    public TokenType type;
+    public string lexeme;
+    public object literal;
+    public int line;
 
-    public Token(TokenType type, string lexeme, Object literal, int line) {
+    public Token(TokenType type, string lexeme, object literal, int line) {
         this.type = type;
         this.lexeme = lexeme;
         this.literal = literal;
@@ -13,7 +13,7 @@ public class Token {
 
     public override string ToString() {
         var literalValue = literal != null ? literal.ToString() :  "";
-        return $"{type.ToString()} {lexeme} {literalValue}";
+        return $"| {type.ToString()} | {lexeme} | {literalValue} |";
     }
 
 }
