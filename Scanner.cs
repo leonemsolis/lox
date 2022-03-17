@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 public class Scanner {
     private static Dictionary<string, TokenType> keywords = new Dictionary<string, TokenType>() {
@@ -117,14 +118,17 @@ public class Scanner {
     }
 
     private void Number() {
-        while(IsDigit(Peek())) Advance();
+        while(IsDigit(Peek())) {
+            Advance();
+        }
         // Look for a fractional part.
         if(Peek() == '.' && IsDigit(PeekNext())) {
             Advance();
-            while(IsDigit(Peek())) Advance();
+            while(IsDigit(Peek())) {
+                Advance();
+            }
         }
 
-        System.Console.WriteLine(source.Substring(start, current - start));
         AddToken(TokenType.NUMBER, double.Parse(source.Substring(start, current - start)));
     }
 
