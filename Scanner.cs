@@ -124,6 +124,7 @@ public class Scanner {
             while(IsDigit(Peek())) Advance();
         }
 
+        System.Console.WriteLine(source.Substring(start, current - start));
         AddToken(TokenType.NUMBER, double.Parse(source.Substring(start, current - start)));
     }
 
