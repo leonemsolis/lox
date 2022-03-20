@@ -1,6 +1,32 @@
-public class AstPrinter : Expr.Visitor<string> {
-    public string Print(Expr expr) {
-        return expr.accept(this);
+using System.Collections.Generic;
+public class AstPrinter : Stmt.Visitor<string>, Expr.Visitor<string> {
+    public void Print(List<Stmt> statements) {
+        try{ 
+            foreach(var statement in statements) {
+                System.Console.WriteLine(GetString(statement));
+            }
+        } catch(RuntimeException e) {
+            Lox.RuntimeError(e);
+        }
+    }
+
+    private string GetString(Stmt statement) {
+        return statement.Accept(this);
+    }
+
+    public string visitVarStmt(Stmt.Var stmt) {
+        string value = null;
+        if(stmt.initializer != null) {
+            value = stmt.initializer.Accept(this);
+        }
+        return $"{stmt.name.lexeme} is {value}";
+    }
+    public string visitExpressionStmt(Stmt.Expression stmt) {
+        return stmt.expression.Accept(this);
+    }
+
+    public string visitPrintStmt(Stmt.Print stmt) {
+        return "Print " + stmt.expression.Accept(this);
     }
 
     public string visitBinaryExpr(Expr.Binary expr) {
@@ -16,13 +42,21 @@ public class AstPrinter : Expr.Visitor<string> {
     public string visitUnaryExpr(Expr.Unary expr) {
         return Parenthesize(expr.op.lexeme, expr.right);
     }
+    
+    public string visitAssignExpr(Expr.Assign expr) {
+        return $"Assign {expr.value.Accept(this)} to {expr.name.lexeme}";
+    }
+
+    public string visitVariableExpr(Expr.Variable expr) {
+        return expr.name.lexeme;
+    }
 
     private string Parenthesize(string name, params Expr[] exprs) {
         var result = "";
         result += "(" + name;
         foreach(var expr in exprs) {
             result += " ";
-            result += expr.accept(this);
+            result += expr.Accept(this);
         }
         result += ")";
         return result;

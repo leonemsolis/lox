@@ -1,11 +1,26 @@
 public abstract class Expr {
-	public abstract T accept<T>(Visitor<T> visitor);
+	public abstract T Accept<T>(Visitor<T> visitor);
 
 	public interface Visitor<T> {
+		T visitAssignExpr(Assign expr);
 		T visitBinaryExpr(Binary expr);
 		T visitGroupingExpr(Grouping expr);
 		T visitLiteralExpr(Literal expr);
 		T visitUnaryExpr(Unary expr);
+		T visitVariableExpr(Variable expr);
+	}
+	public class Assign : Expr {
+		public Token name;
+		public Expr value;
+
+		public Assign(Token name, Expr value) {
+			this.name = name;
+			this.value = value;
+		}
+
+		public override T Accept<T>(Visitor<T> visitor) {
+			return visitor.visitAssignExpr(this);
+		}
 	}
 	public class Binary : Expr {
 		public Expr left;
@@ -18,7 +33,7 @@ public abstract class Expr {
 			this.right = right;
 		}
 
-		public override T accept<T>(Visitor<T> visitor) {
+		public override T Accept<T>(Visitor<T> visitor) {
 			return visitor.visitBinaryExpr(this);
 		}
 	}
@@ -29,7 +44,7 @@ public abstract class Expr {
 			this.expression = expression;
 		}
 
-		public override T accept<T>(Visitor<T> visitor) {
+		public override T Accept<T>(Visitor<T> visitor) {
 			return visitor.visitGroupingExpr(this);
 		}
 	}
@@ -40,7 +55,7 @@ public abstract class Expr {
 			this.value = value;
 		}
 
-		public override T accept<T>(Visitor<T> visitor) {
+		public override T Accept<T>(Visitor<T> visitor) {
 			return visitor.visitLiteralExpr(this);
 		}
 	}
@@ -53,8 +68,19 @@ public abstract class Expr {
 			this.right = right;
 		}
 
-		public override T accept<T>(Visitor<T> visitor) {
+		public override T Accept<T>(Visitor<T> visitor) {
 			return visitor.visitUnaryExpr(this);
+		}
+	}
+	public class Variable : Expr {
+		public Token name;
+
+		public Variable(Token name) {
+			this.name = name;
+		}
+
+		public override T Accept<T>(Visitor<T> visitor) {
+			return visitor.visitVariableExpr(this);
 		}
 	}
 }

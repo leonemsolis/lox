@@ -9,20 +9,28 @@ public class Lox {
         if(args.Length > 2) {
             Console.WriteLine("Usage: jlox [script]");
             Console.WriteLine("       jlox generate <output directory>");
-            Environment.Exit(64);
+            System.Environment.Exit(64);
         }  else if(args.Length == 2)  {
             if(args[0] == "generate") {
                 var outputDir = args[1];
                 GenerateAst.DefineAst(outputDir, "Expr", new List<string>() {
+                    "Assign     : Token name, Expr value",
                     "Binary     : Expr left, Token op, Expr right",
                     "Grouping   : Expr expression",
                     "Literal    : object value",
-                    "Unary      : Token op, Expr right"
+                    "Unary      : Token op, Expr right",
+                    "Variable   : Token name"
+                });
+
+                GenerateAst.DefineAst(outputDir, "Stmt", new List<string>() {
+                    "Expression : Expr expression",
+                    "Print      : Expr expression",
+                    "Var        : Token name, Expr initializer"
                 });
             } else {
                 Console.WriteLine("Usage: jlox [script]");
                 Console.WriteLine("       jlox generate <output directory>");
-                Environment.Exit(64);
+                System.Environment.Exit(64);
             }
         }
         else if(args.Length == 1) {
@@ -35,8 +43,8 @@ public class Lox {
     private static void RunFile(string path) {
         Run(File.ReadAllText(path));
 
-        if(hadError) Environment.Exit(65);
-        if(hadRuntimeError) Environment.Exit(70);
+        if(hadError) System.Environment.Exit(65);
+        if(hadRuntimeError) System.Environment.Exit(70);
     }
 
     private static void RunPrompt() {
@@ -54,11 +62,11 @@ public class Lox {
         List<Token> tokens = scanner.ScanTokens();
 
         Parser parser = new Parser(tokens);
-        Expr expression = parser.Parse();
+        List<Stmt> statements = parser.Parse();
 
         if(hadError) return;
-
-        interpreter.Interpret(expression);
+        // new AstPrinter().Print(statements);
+        interpreter.Interpret(statements);
     }
 
     public static void Error(int line, string message) {

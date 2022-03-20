@@ -1,12 +1,41 @@
-public class Interpreter : Expr.Visitor<object> {
-
-    public void Interpret(Expr expr) {
+using System;
+using System.Collections.Generic;
+public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
+    private Environment environment = new Environment();
+    public void Interpret(List<Stmt> statements) {
         try {
-            object value = Evaluate(expr);
-            System.Console.WriteLine(value.ToString());
+            foreach(var statement in statements) {
+                Execute(statement);
+            }
         } catch(RuntimeException e) {
             Lox.RuntimeError(e);
         }
+    }
+
+    private void Execute(Stmt statement) {
+        statement.Accept(this);
+    }
+    public object visitVarStmt(Stmt.Var stmt) {
+        object value = null;
+        if(stmt.initializer != null) {
+            value = Evaluate(stmt.initializer);
+        }
+        environment.Define(stmt.name.lexeme, value);
+        return null;
+    }
+
+    public object visitExpressionStmt(Stmt.Expression stmt) {
+        Evaluate(stmt.expression);
+        return null;
+    }
+    public object visitPrintStmt(Stmt.Print stmt) {
+        Console.WriteLine(Evaluate(stmt.expression));
+        return null;
+    }
+    public object visitAssignExpr(Expr.Assign expr) {
+        object value = Evaluate(expr.value);
+        environment.Assign(expr.name, value);
+        return value;
     }
     public object visitBinaryExpr(Expr.Binary expr) {
         object left = Evaluate(expr.left);
@@ -68,6 +97,10 @@ public class Interpreter : Expr.Visitor<object> {
         return null;
     }
 
+    public object visitVariableExpr(Expr.Variable variable) {
+        return environment.Get(variable.name); 
+    }
+
     private void CheckNumberOperands(Token op, object left, object right) {
         if(left is double && right is double) return;
         throw new RuntimeException(op, "Operands must be numbers.");
@@ -87,7 +120,7 @@ public class Interpreter : Expr.Visitor<object> {
     }
 
     private object Evaluate(Expr expr) {
-        return expr.accept(this);
+        return expr.Accept(this);
     }
     public object visitLiteralExpr(Expr.Literal expr) {
         return expr.value;

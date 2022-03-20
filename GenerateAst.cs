@@ -8,8 +8,8 @@ public class GenerateAst {
         var content = new List<string>();
         content.Add($"public abstract class {baseName} " + "{");
 
-        // The base accept() method
-        content.Add("\tpublic abstract T accept<T>(Visitor<T> visitor);");
+        // The base Accept() method
+        content.Add("\tpublic abstract T Accept<T>(Visitor<T> visitor);");
         content.Add("");
         DefineVisitor(content, baseName, types);
         foreach(var type in types) {
@@ -47,7 +47,7 @@ public class GenerateAst {
 
         // Visitor pattern
         content.Add("");
-        content.Add("\t\tpublic override T accept<T>(Visitor<T> visitor) {");
+        content.Add("\t\tpublic override T Accept<T>(Visitor<T> visitor) {");
         content.Add($"\t\t\treturn visitor.visit{className}{baseName}(this);");
         content.Add("\t\t}");
         content.Add("\t}");
