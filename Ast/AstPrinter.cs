@@ -25,6 +25,14 @@ public class AstPrinter : Stmt.Visitor<string>, Expr.Visitor<string> {
         return stmt.expression.Accept(this);
     }
 
+    public string visitBlockStmt(Stmt.Block stmt) {
+        var result = "{";
+        foreach(var statement in stmt.statements) {
+            result += statement.Accept(this) + ";";
+        }
+        return result + "}";
+    }
+
     public string visitPrintStmt(Stmt.Print stmt) {
         return "Print " + stmt.expression.Accept(this);
     }

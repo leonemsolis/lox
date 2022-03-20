@@ -6,6 +6,8 @@ public class GenerateAst {
     public static void DefineAst(string outputDir, string baseName, List<string> types) {
         string path = $"{outputDir}/{baseName}.cs";
         var content = new List<string>();
+        content.Add("using System.Collections.Generic;");
+        content.Add("");
         content.Add($"public abstract class {baseName} " + "{");
 
         // The base Accept() method

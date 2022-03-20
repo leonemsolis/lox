@@ -1,10 +1,24 @@
+using System.Collections.Generic;
+
 public abstract class Stmt {
 	public abstract T Accept<T>(Visitor<T> visitor);
 
 	public interface Visitor<T> {
+		T visitBlockStmt(Block stmt);
 		T visitExpressionStmt(Expression stmt);
 		T visitPrintStmt(Print stmt);
 		T visitVarStmt(Var stmt);
+	}
+	public class Block : Stmt {
+		public List<Stmt> statements;
+
+		public Block(List<Stmt> statements) {
+			this.statements = statements;
+		}
+
+		public override T Accept<T>(Visitor<T> visitor) {
+			return visitor.visitBlockStmt(this);
+		}
 	}
 	public class Expression : Stmt {
 		public Expr expression;

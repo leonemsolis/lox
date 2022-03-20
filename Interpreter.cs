@@ -15,6 +15,22 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
     private void Execute(Stmt statement) {
         statement.Accept(this);
     }
+    
+    public object visitBlockStmt(Stmt.Block stmt) {
+        ExecuteBlock(stmt.statements, new Environment(environment));
+        return null;
+    }
+    private void ExecuteBlock(List<Stmt>statements, Environment environment) {
+        Environment previous = this.environment;
+        try {
+            this.environment = environment;
+            foreach(var statement in statements) {
+                Execute(statement);
+            }
+        } finally {
+            this.environment = previous;
+        }
+    }
     public object visitVarStmt(Stmt.Var stmt) {
         object value = null;
         if(stmt.initializer != null) {
@@ -29,7 +45,8 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
         return null;
     }
     public object visitPrintStmt(Stmt.Print stmt) {
-        Console.WriteLine(Evaluate(stmt.expression));
+        object result = Evaluate(stmt.expression);
+        Console.WriteLine(result == null ? "nil" : result);
         return null;
     }
     public object visitAssignExpr(Expr.Assign expr) {
