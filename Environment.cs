@@ -29,6 +29,7 @@ public class Environment {
         }
         if(enclosing != null) {
             enclosing.Assign(name, value);
+            return;
         }
 
         throw new RuntimeException(name, "Undefined variable '" + name.lexeme + "'.");
