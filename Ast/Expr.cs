@@ -8,6 +8,7 @@ public abstract class Expr {
 		T visitBinaryExpr(Binary expr);
 		T visitGroupingExpr(Grouping expr);
 		T visitLiteralExpr(Literal expr);
+		T visitLogicalExpr(Logical expr);
 		T visitUnaryExpr(Unary expr);
 		T visitVariableExpr(Variable expr);
 	}
@@ -59,6 +60,21 @@ public abstract class Expr {
 
 		public override T Accept<T>(Visitor<T> visitor) {
 			return visitor.visitLiteralExpr(this);
+		}
+	}
+	public class Logical : Expr {
+		public Expr left;
+		public Token op;
+		public Expr right;
+
+		public Logical(Expr left, Token op, Expr right) {
+			this.left = left;
+			this.op = op;
+			this.right = right;
+		}
+
+		public override T Accept<T>(Visitor<T> visitor) {
+			return visitor.visitLogicalExpr(this);
 		}
 	}
 	public class Unary : Expr {

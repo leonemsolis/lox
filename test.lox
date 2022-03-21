@@ -1,0 +1,6 @@
+var x = true or false;
+var z = false and true;
+var y = false or false or false or true;
+print x;
+print z;
+print y;

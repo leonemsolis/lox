@@ -21,6 +21,15 @@ public class AstPrinter : Stmt.Visitor<string>, Expr.Visitor<string> {
         }
         return $"{stmt.name.lexeme} is {value}";
     }
+
+    // TODO: if
+    public string visitIfStmt(Stmt.If stmt) {
+        return "IF";
+    }
+    // TODO: while
+    public string visitWhileStmt(Stmt.While stmt) {
+        return "WHILE";
+    }
     public string visitExpressionStmt(Stmt.Expression stmt) {
         return stmt.expression.Accept(this);
     }
@@ -46,6 +55,10 @@ public class AstPrinter : Stmt.Visitor<string>, Expr.Visitor<string> {
     public string visitLiteralExpr(Expr.Literal expr) {
         if(expr.value == null) return "nil";
         return expr.value.ToString();
+    }
+    // TODO: logical
+    public string visitLogicalExpr(Expr.Logical expr) {
+        return "";
     }
     public string visitUnaryExpr(Expr.Unary expr) {
         return Parenthesize(expr.op.lexeme, expr.right);

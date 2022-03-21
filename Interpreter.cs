@@ -44,6 +44,21 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
         Evaluate(stmt.expression);
         return null;
     }
+
+    public object visitWhileStmt(Stmt.While stmt) {
+        while(IsTruthy(Evaluate(stmt.condition))) {
+            Execute(stmt.body);
+        }
+        return null;
+    }
+    public object visitIfStmt(Stmt.If stmt) {
+        if(IsTruthy(Evaluate(stmt.condition))) {
+            Execute(stmt.thenBranch);
+        } else if(stmt.elseBranch != null) {
+            Execute(stmt.elseBranch);
+        }
+        return null;
+    }
     public object visitPrintStmt(Stmt.Print stmt) {
         object result = Evaluate(stmt.expression);
         Console.WriteLine(result == null ? "nil" : result);
@@ -102,6 +117,17 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
         if(left == null) return false;
         return left.Equals(right);
     }
+
+    public object visitLogicalExpr(Expr.Logical expr) {
+        object left = Evaluate(expr.left);
+        if(expr.op.type == TokenType.OR) {
+            if(IsTruthy(left)) return left;
+        } else {
+            if(!IsTruthy(left)) return left;
+        }
+        return Evaluate(expr.right);
+    }
+
     public object visitUnaryExpr(Expr.Unary expr) {
         object right = Evaluate(expr.right);
         switch(expr.op.type) {

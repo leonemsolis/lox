@@ -18,6 +18,7 @@ public class Lox {
                     "Binary     : Expr left, Token op, Expr right",
                     "Grouping   : Expr expression",
                     "Literal    : object value",
+                    "Logical    : Expr left, Token op, Expr right",
                     "Unary      : Token op, Expr right",
                     "Variable   : Token name"
                 });
@@ -25,8 +26,10 @@ public class Lox {
                 GenerateAst.DefineAst(outputDir, "Stmt", new List<string>() {
                     "Block      : List<Stmt> statements",
                     "Expression : Expr expression",
+                    "If         : Expr condition, Stmt thenBranch, Stmt elseBranch",
                     "Print      : Expr expression",
-                    "Var        : Token name, Expr initializer"
+                    "Var        : Token name, Expr initializer",
+                    "While      : Expr condition, Stmt body"
                 });
             } else {
                 Console.WriteLine("Usage: jlox [script]");
