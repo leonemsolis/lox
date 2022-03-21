@@ -40,9 +40,47 @@ public class Parser {
     private Stmt Statement() {
         if(Match(TokenType.PRINT)) return PrintStatement();
         if(Match(TokenType.LEFT_BRACE)) return new Stmt.Block(Block());
+        if(Match(TokenType.FOR)) return ForStatement();
         if(Match(TokenType.IF)) return IfStatement();
         if(Match(TokenType.WHILE)) return WhileStatement();
         return ExpressionStatement();
+    }
+
+    private Stmt ForStatement() {
+        Consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.");
+        Stmt initializer = null;
+        if(Match(TokenType.SEMICOLON)) {
+            initializer = null;
+        } else if(Match(TokenType.VAR)) {
+            initializer = VarDeclaration();
+        } else {
+            initializer = ExpressionStatement();
+        }
+
+        Expr condition = null;
+        if(!Check(TokenType.SEMICOLON)) {
+            condition = Expression();
+        }
+        Consume(TokenType.SEMICOLON, "Expect ';' after loop condition.");
+
+        Expr increment = null;
+        if(!Check(TokenType.RIGHT_PAREN)) {
+            increment = Expression();
+        }
+        Consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.");
+
+        Stmt body = Statement();
+
+        if(increment != null) {
+            body = new Stmt.Block(new List<Stmt>(){body, new Stmt.Expression(increment)});
+        }
+
+        if(condition == null) condition = new Expr.Literal(true);
+        body = new Stmt.While(condition, body);
+
+        if(initializer != null) body = new Stmt.Block(new List<Stmt>() {initializer, body});
+
+        return body;
     }
 
     private Stmt WhileStatement() {
@@ -168,8 +206,7 @@ public class Parser {
         if(Match(TokenType.BANG, TokenType.MINUS)) {
             Token op = Previous();
             Expr right = Unary();
-            Expr expr = new Expr.Unary(op, right);
-            return expr;
+            return new Expr.Unary(op, right);
         }  
         return Primary();
     }
