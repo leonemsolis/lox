@@ -60,6 +60,10 @@ public class AstPrinter : Stmt.Visitor<string>, Expr.Visitor<string> {
     public string visitLogicalExpr(Expr.Logical expr) {
         return "";
     }
+    // TODO: Call
+    public string visitCallExpr(Expr.Call expr) {
+        return "";
+    }
     public string visitUnaryExpr(Expr.Unary expr) {
         return Parenthesize(expr.op.lexeme, expr.right);
     }

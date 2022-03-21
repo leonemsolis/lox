@@ -1,7 +1,11 @@
 using System;
 using System.Collections.Generic;
 public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
-    private Environment environment = new Environment();
+    private static Environment globals = new Environment();
+    private Environment environment = globals;
+    public Interpreter() {
+        new BuiltInClock().DefineInEnvironment(globals, "clock");
+    }
     public void Interpret(List<Stmt> statements) {
         try {
             foreach(var statement in statements) {
@@ -138,6 +142,22 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
                 return !IsTruthy(right);
         }
         return null;
+    }
+
+    public object visitCallExpr(Expr.Call expr) {
+        object callee = Evaluate(expr.callee);
+        List<object> arguments = new List<object>();
+        foreach(var argument in expr.arguments) {
+            arguments.Add(Evaluate(argument));
+        } 
+        if(!(callee is LoxCallable)) {
+            throw new RuntimeException(expr.paren, "Can only call functions and constructors.");
+        }
+        LoxCallable function = (LoxCallable)callee;
+        if(arguments.Count != function.Arity()) {
+            throw new RuntimeException(expr.paren, $"Expected {function.Arity()} arguments, but got {arguments.Count}.");
+        }
+        return function.Call(this, arguments);
     }
 
     public object visitVariableExpr(Expr.Variable variable) {
