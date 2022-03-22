@@ -5,6 +5,24 @@ public abstract class LoxCallable {
     public abstract object Call(Interpreter interpreter, List<object>arguments);
 }
 
+public class BuiltInPrint : LoxCallable {
+    public override int Arity()
+    {
+        return 1;
+    }
+
+    public override object Call(Interpreter interpreter, List<object> arguments)
+    {
+        Console.WriteLine(arguments[0]);
+        return null;
+    }
+
+    public override string ToString()
+    {
+        return "<native fn>";
+    }
+}
+
 public class BuiltInClock : LoxCallable {
     public override int Arity() {
         return 0;
