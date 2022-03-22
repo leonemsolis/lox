@@ -5,6 +5,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
     private Environment environment = globals;
     public Interpreter() {
         globals.Define("clock", new BuiltInClock());
+        globals.Define("print", new BuiltInPrint());
     }
     public void Interpret(List<Stmt> statements) {
         try {
@@ -66,11 +67,6 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
         } else if(stmt.elseBranch != null) {
             Execute(stmt.elseBranch);
         }
-        return null;
-    }
-    public object visitPrintStmt(Stmt.Print stmt) {
-        object result = Evaluate(stmt.expression);
-        Console.WriteLine(result == null ? "nil" : result);
         return null;
     }
     public object visitReturnStmt(Stmt.Return stmt) {

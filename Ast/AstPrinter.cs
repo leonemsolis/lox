@@ -50,10 +50,6 @@ public class AstPrinter : Stmt.Visitor<string>, Expr.Visitor<string> {
         return result + "}";
     }
 
-    public string visitPrintStmt(Stmt.Print stmt) {
-        return "Print " + stmt.expression.Accept(this);
-    }
-
     public string visitBinaryExpr(Expr.Binary expr) {
         return Parenthesize(expr.op.lexeme, expr.left, expr.right);
     }

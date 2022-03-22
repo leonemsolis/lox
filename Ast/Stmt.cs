@@ -8,7 +8,6 @@ public abstract class Stmt {
 		T visitExpressionStmt(Expression stmt);
 		T visitFunctionStmt(Function stmt);
 		T visitIfStmt(If stmt);
-		T visitPrintStmt(Print stmt);
 		T visitReturnStmt(Return stmt);
 		T visitVarStmt(Var stmt);
 		T visitWhileStmt(While stmt);
@@ -63,17 +62,6 @@ public abstract class Stmt {
 
 		public override T Accept<T>(Visitor<T> visitor) {
 			return visitor.visitIfStmt(this);
-		}
-	}
-	public class Print : Stmt {
-		public Expr expression;
-
-		public Print(Expr expression) {
-			this.expression = expression;
-		}
-
-		public override T Accept<T>(Visitor<T> visitor) {
-			return visitor.visitPrintStmt(this);
 		}
 	}
 	public class Return : Stmt {
