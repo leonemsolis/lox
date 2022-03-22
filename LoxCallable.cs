@@ -22,8 +22,10 @@ public class BuiltInClock : LoxCallable {
 
 public class LoxFunction : LoxCallable {
     private Stmt.Function declaration;
-    public LoxFunction(Stmt.Function declaration) {
+    private Environment closure;
+    public LoxFunction(Stmt.Function declaration, Environment closure) {
         this.declaration = declaration;
+        this.closure = closure;
     }
 
     public override int Arity()
@@ -33,7 +35,7 @@ public class LoxFunction : LoxCallable {
 
     public override object Call(Interpreter interpreter, List<object> arguments)
     {
-        Environment environment = new Environment(Interpreter.globals);
+        Environment environment = new Environment(closure);
         for(int i = 0; i < declaration.parameters.Count; i++) {
             environment.Define(declaration.parameters[i].lexeme, arguments[i]);
         }

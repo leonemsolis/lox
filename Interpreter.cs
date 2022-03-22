@@ -36,7 +36,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
         }
     }
     public object visitFunctionStmt(Stmt.Function stmt) {
-        LoxFunction function = new LoxFunction(stmt);
+        LoxFunction function = new LoxFunction(stmt, environment);
         environment.Define(stmt.name.lexeme, function);
         return null;
     }
