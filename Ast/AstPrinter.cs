@@ -30,6 +30,14 @@ public class AstPrinter : Stmt.Visitor<string>, Expr.Visitor<string> {
     public string visitWhileStmt(Stmt.While stmt) {
         return "WHILE";
     }
+    // TODO: function
+    public string visitFunctionStmt(Stmt.Function stmt) {
+        return "FUNC";
+    }
+    // TODO: return
+    public string visitReturnStmt(Stmt.Return stmt) {
+        return "RETURN";
+    }
     public string visitExpressionStmt(Stmt.Expression stmt) {
         return stmt.expression.Accept(this);
     }

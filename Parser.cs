@@ -19,12 +19,31 @@ public class Parser {
 
     private Stmt Declaration() {
         try {
+            if(Match(TokenType.FUN)) return Function("function");
             if(Match(TokenType.VAR)) return VarDeclaration();
             return Statement();
         } catch(ParseException) {
             Synchronize();
             return null;
         }
+    }
+
+    private Stmt.Function Function(string kind) {
+        Token name = Consume(TokenType.IDENTIFIER, "Expect " + kind + " name.");
+        Consume(TokenType.LEFT_PAREN, "Expect '(' after " + kind + " name.");
+        List<Token> parameters = new List<Token>();
+        if(!Check(TokenType.RIGHT_PAREN)) {
+            do {
+                if(parameters.Count > 255) {
+                    Error(Peek(), "Can't have more than 255 parameters.");
+                }
+                parameters.Add(Consume(TokenType.IDENTIFIER, "Expected parameter's name."));
+            } while(Match(TokenType.COMMA));
+        }
+        Consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.");
+        Consume(TokenType.LEFT_BRACE, "Expect '{' before " + kind + " body.");
+        List<Stmt>block = Block();
+        return new Stmt.Function(name, parameters, block);
     }
 
     private Stmt VarDeclaration() {
@@ -42,8 +61,19 @@ public class Parser {
         if(Match(TokenType.LEFT_BRACE)) return new Stmt.Block(Block());
         if(Match(TokenType.FOR)) return ForStatement();
         if(Match(TokenType.IF)) return IfStatement();
+        if(Match(TokenType.RETURN)) return ReturnStatement();
         if(Match(TokenType.WHILE)) return WhileStatement();
         return ExpressionStatement();
+    }
+
+    private Stmt ReturnStatement() {
+        Token keyword = Previous();
+        Expr value = null;
+        if(!Check(TokenType.SEMICOLON)) {
+            value = Expression();
+        }
+        Consume(TokenType.SEMICOLON, "Expect ';' after return value.");
+        return new Stmt.Return(keyword, value);
     }
 
     private Stmt ForStatement() {

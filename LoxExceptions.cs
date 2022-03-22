@@ -5,3 +5,10 @@ public class RuntimeException : Exception {
         this.token = token;
     }
 }
+
+public class Return : Exception {
+    public object value;
+    public Return(object value) : base(null) {
+        this.value = value;
+    }
+}

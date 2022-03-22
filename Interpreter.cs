@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
-    private static Environment globals = new Environment();
+    public static Environment globals = new Environment();
     private Environment environment = globals;
     public Interpreter() {
-        new BuiltInClock().DefineInEnvironment(globals, "clock");
+        globals.Define("clock", new BuiltInClock());
     }
     public void Interpret(List<Stmt> statements) {
         try {
@@ -24,7 +24,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
         ExecuteBlock(stmt.statements, new Environment(environment));
         return null;
     }
-    private void ExecuteBlock(List<Stmt>statements, Environment environment) {
+    public void ExecuteBlock(List<Stmt>statements, Environment environment) {
         Environment previous = this.environment;
         try {
             this.environment = environment;
@@ -34,6 +34,11 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
         } finally {
             this.environment = previous;
         }
+    }
+    public object visitFunctionStmt(Stmt.Function stmt) {
+        LoxFunction function = new LoxFunction(stmt);
+        environment.Define(stmt.name.lexeme, function);
+        return null;
     }
     public object visitVarStmt(Stmt.Var stmt) {
         object value = null;
@@ -67,6 +72,11 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
         object result = Evaluate(stmt.expression);
         Console.WriteLine(result == null ? "nil" : result);
         return null;
+    }
+    public object visitReturnStmt(Stmt.Return stmt) {
+        Object value = null;
+        if(stmt.value != null) value = Evaluate(stmt.value);
+        throw new Return(value);
     }
     public object visitAssignExpr(Expr.Assign expr) {
         object value = Evaluate(expr.value);

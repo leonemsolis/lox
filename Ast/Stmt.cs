@@ -6,8 +6,10 @@ public abstract class Stmt {
 	public interface Visitor<T> {
 		T visitBlockStmt(Block stmt);
 		T visitExpressionStmt(Expression stmt);
+		T visitFunctionStmt(Function stmt);
 		T visitIfStmt(If stmt);
 		T visitPrintStmt(Print stmt);
+		T visitReturnStmt(Return stmt);
 		T visitVarStmt(Var stmt);
 		T visitWhileStmt(While stmt);
 	}
@@ -31,6 +33,21 @@ public abstract class Stmt {
 
 		public override T Accept<T>(Visitor<T> visitor) {
 			return visitor.visitExpressionStmt(this);
+		}
+	}
+	public class Function : Stmt {
+		public Token name;
+		public List<Token> parameters;
+		public List<Stmt> body;
+
+		public Function(Token name, List<Token> parameters, List<Stmt> body) {
+			this.name = name;
+			this.parameters = parameters;
+			this.body = body;
+		}
+
+		public override T Accept<T>(Visitor<T> visitor) {
+			return visitor.visitFunctionStmt(this);
 		}
 	}
 	public class If : Stmt {
@@ -57,6 +74,19 @@ public abstract class Stmt {
 
 		public override T Accept<T>(Visitor<T> visitor) {
 			return visitor.visitPrintStmt(this);
+		}
+	}
+	public class Return : Stmt {
+		public Token keyword;
+		public Expr value;
+
+		public Return(Token keyword, Expr value) {
+			this.keyword = keyword;
+			this.value = value;
+		}
+
+		public override T Accept<T>(Visitor<T> visitor) {
+			return visitor.visitReturnStmt(this);
 		}
 	}
 	public class Var : Stmt {
