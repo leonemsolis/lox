@@ -11,6 +11,7 @@ public abstract class Expr {
 		T VisitGroupingExpr(Grouping expr);
 		T VisitLiteralExpr(Literal expr);
 		T VisitLogicalExpr(Logical expr);
+		T VisitSetExpr(Set expr);
 		T VisitUnaryExpr(Unary expr);
 		T VisitVariableExpr(Variable expr);
 	}
@@ -105,6 +106,21 @@ public abstract class Expr {
 
 		public override T Accept<T>(Visitor<T> visitor) {
 			return visitor.VisitLogicalExpr(this);
+		}
+	}
+	public class Set : Expr {
+		public Expr obj;
+		public Token name;
+		public Expr value;
+
+		public Set(Expr obj, Token name, Expr value) {
+			this.obj = obj;
+			this.name = name;
+			this.value = value;
+		}
+
+		public override T Accept<T>(Visitor<T> visitor) {
+			return visitor.VisitSetExpr(this);
 		}
 	}
 	public class Unary : Expr {

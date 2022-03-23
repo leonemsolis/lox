@@ -21,6 +21,7 @@ public class Lox {
                     "Grouping   : Expr expression",
                     "Literal    : object value",
                     "Logical    : Expr left, Token op, Expr right",
+                    "Set        : Expr obj, Token name, Expr value",
                     "Unary      : Token op, Expr right",
                     "Variable   : Token name"
                 });

@@ -15,7 +15,7 @@ var a = "global";
 using System;
 using System.Collections.Generic;
 public class Resolver : Expr.Visitor<object>, Stmt.Visitor<object> {
-    private enum FunctionType {NONE, FUNCTION};
+    private enum FunctionType {NONE, FUNCTION, METHOD};
     private Interpreter interpreter;
 
     // bool - variable has been resolved
@@ -36,7 +36,10 @@ public class Resolver : Expr.Visitor<object>, Stmt.Visitor<object> {
 
     public object VisitClassStmt(Stmt.Class stmt) {
         Declare(stmt.name);
-        Define(stmt.name);
+        foreach(var method in stmt.methods) {
+            FunctionType declaration = FunctionType.METHOD;
+            ResolveFunction(method, declaration);
+        }
         return null;
     }
 
@@ -193,6 +196,12 @@ public class Resolver : Expr.Visitor<object>, Stmt.Visitor<object> {
     public object VisitLogicalExpr(Expr.Logical expr) {
         Resolve(expr.left);
         Resolve(expr.right);
+        return null;
+    }
+
+    public object VisitSetExpr(Expr.Set expr) {
+        Resolve(expr.value);
+        Resolve(expr.obj);
         return null;
     }
 

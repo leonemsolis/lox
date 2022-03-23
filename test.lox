@@ -1,9 +1,7 @@
-class Cream {
-  serveOn() {
-    return "Scones"; 
-  }
+class Bacon {
+  eat() {
+    print("NOM NOM NOM"); 
+  } 
 }
 
-var cream = Cream();
-
-print(cream);
+Bacon().eat();

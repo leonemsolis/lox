@@ -33,7 +33,14 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
 
     public object VisitClassStmt(Stmt.Class stmt) {
         environment.Define(stmt.name.lexeme, null);
-        LoxClass klass = new LoxClass(stmt.name.lexeme);
+
+        Dictionary<string, LoxFunction> methods = new Dictionary<string, LoxFunction>();
+        foreach(var method in stmt.methods) {
+            LoxFunction function = new LoxFunction(method, environment);
+            methods[method.name.lexeme] = function;
+        }
+
+        LoxClass klass = new LoxClass(stmt.name.lexeme, methods);
         environment.Assign(stmt.name, klass);
         return null;
     }
@@ -152,6 +159,17 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
             if(!IsTruthy(left)) return left;
         }
         return Evaluate(expr.right);
+    }
+
+    public object VisitSetExpr(Expr.Set expr) {
+        object obj = Evaluate(expr.obj);
+        if(!(obj is LoxInstance)) {
+            throw new RuntimeException(expr.name, "Only instances have fields.");
+        }
+
+        object value = Evaluate(expr.value);
+        (obj as LoxInstance).Set(expr.name, value);
+        return value;
     }
 
     public object VisitUnaryExpr(Expr.Unary expr) {

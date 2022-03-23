@@ -2,8 +2,15 @@ using System.Collections.Generic;
 
 public class LoxClass : LoxCallable {
     public string name;
-    public LoxClass(string name) {
+    private Dictionary<string, LoxFunction> methods;
+    public LoxClass(string name, Dictionary<string, LoxFunction> methods) {
         this.name = name;
+        this.methods = methods;
+    }
+
+    public LoxFunction FindMethod(string name) {
+        if(methods.ContainsKey(name)) return methods[name];
+        return null;
     }
 
     public override string ToString()
@@ -40,6 +47,12 @@ public class LoxInstance {
             return fields[name.lexeme];
         }
 
+        LoxFunction method = klass.FindMethod(name.lexeme);
+        if(method != null) return method;
         throw new RuntimeException(name, "Undefined property '" + name.lexeme + "'.");
+    }
+
+    public void Set(Token name, object value) {
+        fields[name.lexeme] = value;
     }
 }
