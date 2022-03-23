@@ -50,7 +50,7 @@ public class GenerateAst {
         // Visitor pattern
         content.Add("");
         content.Add("\t\tpublic override T Accept<T>(Visitor<T> visitor) {");
-        content.Add($"\t\t\treturn visitor.visit{className}{baseName}(this);");
+        content.Add($"\t\t\treturn visitor.Visit{className}{baseName}(this);");
         content.Add("\t\t}");
         content.Add("\t}");
     }

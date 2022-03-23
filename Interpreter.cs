@@ -182,6 +182,14 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
         return function.Call(this, arguments);
     }
 
+    public object VisitGetExpr(Expr.Get expr) {
+        object obj = Evaluate(expr.obj);
+        if(obj is LoxInstance) {
+            return (obj as LoxInstance).Get(expr.name);
+        }
+        throw new RuntimeException(expr.name, "Only instances have properties.");
+    }
+
     public object VisitVariableExpr(Expr.Variable expr) {
         return LookUpVariable(expr.name, expr);
     }

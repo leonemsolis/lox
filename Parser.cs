@@ -251,7 +251,12 @@ public class Parser {
         Expr expr = Primary();
         while(true) {
             if(Match(TokenType.LEFT_PAREN)) expr = FinishCall(expr);
-            break;
+            else if(Match(TokenType.DOT)) {
+                Token name = Consume(TokenType.IDENTIFIER, "Expect property name after '.'.");
+                expr = new Expr.Get(expr, name);
+            } else {
+                break;
+            }
         }
         return expr;
     }

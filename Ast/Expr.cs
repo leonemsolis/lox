@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 
 public abstract class Expr {
-	public abstract T Accept<T>(Visitor<T> Visitor);
+	public abstract T Accept<T>(Visitor<T> visitor);
 
 	public interface Visitor<T> {
 		T VisitAssignExpr(Assign expr);
 		T VisitBinaryExpr(Binary expr);
 		T VisitCallExpr(Call expr);
+		T VisitGetExpr(Get expr);
 		T VisitGroupingExpr(Grouping expr);
 		T VisitLiteralExpr(Literal expr);
 		T VisitLogicalExpr(Logical expr);
@@ -22,8 +23,8 @@ public abstract class Expr {
 			this.value = value;
 		}
 
-		public override T Accept<T>(Visitor<T> Visitor) {
-			return Visitor.VisitAssignExpr(this);
+		public override T Accept<T>(Visitor<T> visitor) {
+			return visitor.VisitAssignExpr(this);
 		}
 	}
 	public class Binary : Expr {
@@ -37,8 +38,8 @@ public abstract class Expr {
 			this.right = right;
 		}
 
-		public override T Accept<T>(Visitor<T> Visitor) {
-			return Visitor.VisitBinaryExpr(this);
+		public override T Accept<T>(Visitor<T> visitor) {
+			return visitor.VisitBinaryExpr(this);
 		}
 	}
 	public class Call : Expr {
@@ -52,8 +53,21 @@ public abstract class Expr {
 			this.arguments = arguments;
 		}
 
-		public override T Accept<T>(Visitor<T> Visitor) {
-			return Visitor.VisitCallExpr(this);
+		public override T Accept<T>(Visitor<T> visitor) {
+			return visitor.VisitCallExpr(this);
+		}
+	}
+	public class Get : Expr {
+		public Expr obj;
+		public Token name;
+
+		public Get(Expr obj, Token name) {
+			this.obj = obj;
+			this.name = name;
+		}
+
+		public override T Accept<T>(Visitor<T> visitor) {
+			return visitor.VisitGetExpr(this);
 		}
 	}
 	public class Grouping : Expr {
@@ -63,8 +77,8 @@ public abstract class Expr {
 			this.expression = expression;
 		}
 
-		public override T Accept<T>(Visitor<T> Visitor) {
-			return Visitor.VisitGroupingExpr(this);
+		public override T Accept<T>(Visitor<T> visitor) {
+			return visitor.VisitGroupingExpr(this);
 		}
 	}
 	public class Literal : Expr {
@@ -74,8 +88,8 @@ public abstract class Expr {
 			this.value = value;
 		}
 
-		public override T Accept<T>(Visitor<T> Visitor) {
-			return Visitor.VisitLiteralExpr(this);
+		public override T Accept<T>(Visitor<T> visitor) {
+			return visitor.VisitLiteralExpr(this);
 		}
 	}
 	public class Logical : Expr {
@@ -89,8 +103,8 @@ public abstract class Expr {
 			this.right = right;
 		}
 
-		public override T Accept<T>(Visitor<T> Visitor) {
-			return Visitor.VisitLogicalExpr(this);
+		public override T Accept<T>(Visitor<T> visitor) {
+			return visitor.VisitLogicalExpr(this);
 		}
 	}
 	public class Unary : Expr {
@@ -102,8 +116,8 @@ public abstract class Expr {
 			this.right = right;
 		}
 
-		public override T Accept<T>(Visitor<T> Visitor) {
-			return Visitor.VisitUnaryExpr(this);
+		public override T Accept<T>(Visitor<T> visitor) {
+			return visitor.VisitUnaryExpr(this);
 		}
 	}
 	public class Variable : Expr {
@@ -113,8 +127,8 @@ public abstract class Expr {
 			this.name = name;
 		}
 
-		public override T Accept<T>(Visitor<T> Visitor) {
-			return Visitor.VisitVariableExpr(this);
+		public override T Accept<T>(Visitor<T> visitor) {
+			return visitor.VisitVariableExpr(this);
 		}
 	}
 }

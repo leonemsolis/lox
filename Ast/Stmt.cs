@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 
 public abstract class Stmt {
-	public abstract T Accept<T>(Visitor<T> Visitor);
+	public abstract T Accept<T>(Visitor<T> visitor);
 
 	public interface Visitor<T> {
 		T VisitBlockStmt(Block stmt);
@@ -20,8 +20,8 @@ public abstract class Stmt {
 			this.statements = statements;
 		}
 
-		public override T Accept<T>(Visitor<T> Visitor) {
-			return Visitor.VisitBlockStmt(this);
+		public override T Accept<T>(Visitor<T> visitor) {
+			return visitor.VisitBlockStmt(this);
 		}
 	}
 	public class Class : Stmt {
@@ -33,8 +33,8 @@ public abstract class Stmt {
 			this.methods = methods;
 		}
 
-		public override T Accept<T>(Visitor<T> Visitor) {
-			return Visitor.VisitClassStmt(this);
+		public override T Accept<T>(Visitor<T> visitor) {
+			return visitor.VisitClassStmt(this);
 		}
 	}
 	public class Expression : Stmt {
@@ -44,8 +44,8 @@ public abstract class Stmt {
 			this.expression = expression;
 		}
 
-		public override T Accept<T>(Visitor<T> Visitor) {
-			return Visitor.VisitExpressionStmt(this);
+		public override T Accept<T>(Visitor<T> visitor) {
+			return visitor.VisitExpressionStmt(this);
 		}
 	}
 	public class Function : Stmt {
@@ -59,8 +59,8 @@ public abstract class Stmt {
 			this.body = body;
 		}
 
-		public override T Accept<T>(Visitor<T> Visitor) {
-			return Visitor.VisitFunctionStmt(this);
+		public override T Accept<T>(Visitor<T> visitor) {
+			return visitor.VisitFunctionStmt(this);
 		}
 	}
 	public class If : Stmt {
@@ -74,8 +74,8 @@ public abstract class Stmt {
 			this.elseBranch = elseBranch;
 		}
 
-		public override T Accept<T>(Visitor<T> Visitor) {
-			return Visitor.VisitIfStmt(this);
+		public override T Accept<T>(Visitor<T> visitor) {
+			return visitor.VisitIfStmt(this);
 		}
 	}
 	public class Return : Stmt {
@@ -87,8 +87,8 @@ public abstract class Stmt {
 			this.value = value;
 		}
 
-		public override T Accept<T>(Visitor<T> Visitor) {
-			return Visitor.VisitReturnStmt(this);
+		public override T Accept<T>(Visitor<T> visitor) {
+			return visitor.VisitReturnStmt(this);
 		}
 	}
 	public class Var : Stmt {
@@ -100,8 +100,8 @@ public abstract class Stmt {
 			this.initializer = initializer;
 		}
 
-		public override T Accept<T>(Visitor<T> Visitor) {
-			return Visitor.VisitVarStmt(this);
+		public override T Accept<T>(Visitor<T> visitor) {
+			return visitor.VisitVarStmt(this);
 		}
 	}
 	public class While : Stmt {
@@ -113,8 +113,8 @@ public abstract class Stmt {
 			this.body = body;
 		}
 
-		public override T Accept<T>(Visitor<T> Visitor) {
-			return Visitor.VisitWhileStmt(this);
+		public override T Accept<T>(Visitor<T> visitor) {
+			return visitor.VisitWhileStmt(this);
 		}
 	}
 }
