@@ -19,6 +19,7 @@ public class Parser {
 
     private Stmt Declaration() {
         try {
+            if(Match(TokenType.CLASS)) return ClassDeclaration();
             if(Match(TokenType.FUN)) return Function("function");
             if(Match(TokenType.VAR)) return VarDeclaration();
             return Statement();
@@ -26,6 +27,17 @@ public class Parser {
             Synchronize();
             return null;
         }
+    }
+
+    private Stmt ClassDeclaration() {
+        Token name = Consume(TokenType.IDENTIFIER, "Expect class name.");
+        Consume(TokenType.LEFT_BRACE, "Expect '{' before class body.");
+        List<Stmt.Function> methods = new List<Stmt.Function>();
+        while(!Check(TokenType.RIGHT_BRACE) && !IsAtEnd()) {
+            methods.Add(Function("method"));
+        }
+        Consume(TokenType.RIGHT_BRACE, "Expect '}' after class body.");
+        return new Stmt.Class(name, methods);
     }
 
     private Stmt.Function Function(string kind) {

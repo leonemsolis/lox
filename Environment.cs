@@ -11,7 +11,23 @@ public class Environment {
 
     private Dictionary<string, object> values = new Dictionary<string, object>();
 
-    public void Define(string name, object value) => values.Add(name, value);
+    public void Define(string name, object value) => values[name] = value;
+
+    public void AssignAt(int distance, Token name, object value) {
+        Ancestor(distance).values[name.lexeme] = value;
+    }
+
+    public object GetAt(int distance, string name) {
+        return Ancestor(distance).values[name];
+    }
+
+    private Environment Ancestor(int distance) {
+        Environment environment = this;
+        for(int i = 0; i < distance; i++) {
+            environment = environment.enclosing;
+        }
+        return environment;
+    }
 
     public object Get(Token name) {
         if(values.ContainsKey(name.lexeme))

@@ -14,7 +14,7 @@ public class AstPrinter : Stmt.Visitor<string>, Expr.Visitor<string> {
         return statement.Accept(this);
     }
 
-    public string visitVarStmt(Stmt.Var stmt) {
+    public string VisitVarStmt(Stmt.Var stmt) {
         string value = null;
         if(stmt.initializer != null) {
             value = stmt.initializer.Accept(this);
@@ -23,26 +23,26 @@ public class AstPrinter : Stmt.Visitor<string>, Expr.Visitor<string> {
     }
 
     // TODO: if
-    public string visitIfStmt(Stmt.If stmt) {
+    public string VisitIfStmt(Stmt.If stmt) {
         return "IF";
     }
     // TODO: while
-    public string visitWhileStmt(Stmt.While stmt) {
+    public string VisitWhileStmt(Stmt.While stmt) {
         return "WHILE";
     }
     // TODO: function
-    public string visitFunctionStmt(Stmt.Function stmt) {
+    public string VisitFunctionStmt(Stmt.Function stmt) {
         return "FUNC";
     }
     // TODO: return
-    public string visitReturnStmt(Stmt.Return stmt) {
+    public string VisitReturnStmt(Stmt.Return stmt) {
         return "RETURN";
     }
-    public string visitExpressionStmt(Stmt.Expression stmt) {
+    public string VisitExpressionStmt(Stmt.Expression stmt) {
         return stmt.expression.Accept(this);
     }
 
-    public string visitBlockStmt(Stmt.Block stmt) {
+    public string VisitBlockStmt(Stmt.Block stmt) {
         var result = "{";
         foreach(var statement in stmt.statements) {
             result += statement.Accept(this) + ";";
@@ -50,33 +50,38 @@ public class AstPrinter : Stmt.Visitor<string>, Expr.Visitor<string> {
         return result + "}";
     }
 
-    public string visitBinaryExpr(Expr.Binary expr) {
+    // TODO: class
+    public string VisitClassStmt(Stmt.Class stmt) {
+        return "CLASS";
+    } 
+
+    public string VisitBinaryExpr(Expr.Binary expr) {
         return Parenthesize(expr.op.lexeme, expr.left, expr.right);
     }
-    public string visitGroupingExpr(Expr.Grouping expr) {
+    public string VisitGroupingExpr(Expr.Grouping expr) {
         return Parenthesize("group", expr.expression);
     }
-    public string visitLiteralExpr(Expr.Literal expr) {
+    public string VisitLiteralExpr(Expr.Literal expr) {
         if(expr.value == null) return "nil";
         return expr.value.ToString();
     }
     // TODO: logical
-    public string visitLogicalExpr(Expr.Logical expr) {
+    public string VisitLogicalExpr(Expr.Logical expr) {
         return "";
     }
     // TODO: Call
-    public string visitCallExpr(Expr.Call expr) {
+    public string VisitCallExpr(Expr.Call expr) {
         return "";
     }
-    public string visitUnaryExpr(Expr.Unary expr) {
+    public string VisitUnaryExpr(Expr.Unary expr) {
         return Parenthesize(expr.op.lexeme, expr.right);
     }
     
-    public string visitAssignExpr(Expr.Assign expr) {
+    public string VisitAssignExpr(Expr.Assign expr) {
         return $"Assign {expr.value.Accept(this)} to {expr.name.lexeme}";
     }
 
-    public string visitVariableExpr(Expr.Variable expr) {
+    public string VisitVariableExpr(Expr.Variable expr) {
         return expr.name.lexeme;
     }
 

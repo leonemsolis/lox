@@ -3,6 +3,7 @@ using System.Collections.Generic;
 public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
     public static Environment globals = new Environment();
     private Environment environment = globals;
+    private Dictionary<Expr, int> locals = new Dictionary<Expr, int>();
     public Interpreter() {
         globals.Define("clock", new BuiltInClock());
         globals.Define("print", new BuiltInPrint());
@@ -20,9 +21,20 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
     private void Execute(Stmt statement) {
         statement.Accept(this);
     }
+
+    public void Resolve(Expr expr, int depth) {
+        locals.Add(expr, depth);
+    }
     
-    public object visitBlockStmt(Stmt.Block stmt) {
+    public object VisitBlockStmt(Stmt.Block stmt) {
         ExecuteBlock(stmt.statements, new Environment(environment));
+        return null;
+    }
+
+    public object VisitClassStmt(Stmt.Class stmt) {
+        environment.Define(stmt.name.lexeme, null);
+        LoxClass klass = new LoxClass(stmt.name.lexeme);
+        environment.Assign(stmt.name, klass);
         return null;
     }
     public void ExecuteBlock(List<Stmt>statements, Environment environment) {
@@ -36,12 +48,12 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
             this.environment = previous;
         }
     }
-    public object visitFunctionStmt(Stmt.Function stmt) {
+    public object VisitFunctionStmt(Stmt.Function stmt) {
         LoxFunction function = new LoxFunction(stmt, environment);
         environment.Define(stmt.name.lexeme, function);
         return null;
     }
-    public object visitVarStmt(Stmt.Var stmt) {
+    public object VisitVarStmt(Stmt.Var stmt) {
         object value = null;
         if(stmt.initializer != null) {
             value = Evaluate(stmt.initializer);
@@ -50,18 +62,18 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
         return null;
     }
 
-    public object visitExpressionStmt(Stmt.Expression stmt) {
+    public object VisitExpressionStmt(Stmt.Expression stmt) {
         Evaluate(stmt.expression);
         return null;
     }
 
-    public object visitWhileStmt(Stmt.While stmt) {
+    public object VisitWhileStmt(Stmt.While stmt) {
         while(IsTruthy(Evaluate(stmt.condition))) {
             Execute(stmt.body);
         }
         return null;
     }
-    public object visitIfStmt(Stmt.If stmt) {
+    public object VisitIfStmt(Stmt.If stmt) {
         if(IsTruthy(Evaluate(stmt.condition))) {
             Execute(stmt.thenBranch);
         } else if(stmt.elseBranch != null) {
@@ -69,17 +81,21 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
         }
         return null;
     }
-    public object visitReturnStmt(Stmt.Return stmt) {
+    public object VisitReturnStmt(Stmt.Return stmt) {
         Object value = null;
         if(stmt.value != null) value = Evaluate(stmt.value);
         throw new Return(value);
     }
-    public object visitAssignExpr(Expr.Assign expr) {
+    public object VisitAssignExpr(Expr.Assign expr) {
         object value = Evaluate(expr.value);
-        environment.Assign(expr.name, value);
+        if(locals.ContainsKey(expr)) {
+            environment.AssignAt(locals[expr], expr.name, value);
+        } else {
+            globals.Assign(expr.name, value);
+        }
         return value;
     }
-    public object visitBinaryExpr(Expr.Binary expr) {
+    public object VisitBinaryExpr(Expr.Binary expr) {
         object left = Evaluate(expr.left);
         object right = Evaluate(expr.right);
 
@@ -128,7 +144,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
         return left.Equals(right);
     }
 
-    public object visitLogicalExpr(Expr.Logical expr) {
+    public object VisitLogicalExpr(Expr.Logical expr) {
         object left = Evaluate(expr.left);
         if(expr.op.type == TokenType.OR) {
             if(IsTruthy(left)) return left;
@@ -138,7 +154,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
         return Evaluate(expr.right);
     }
 
-    public object visitUnaryExpr(Expr.Unary expr) {
+    public object VisitUnaryExpr(Expr.Unary expr) {
         object right = Evaluate(expr.right);
         switch(expr.op.type) {
             case TokenType.MINUS:
@@ -150,7 +166,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
         return null;
     }
 
-    public object visitCallExpr(Expr.Call expr) {
+    public object VisitCallExpr(Expr.Call expr) {
         object callee = Evaluate(expr.callee);
         List<object> arguments = new List<object>();
         foreach(var argument in expr.arguments) {
@@ -166,8 +182,16 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
         return function.Call(this, arguments);
     }
 
-    public object visitVariableExpr(Expr.Variable variable) {
-        return environment.Get(variable.name); 
+    public object VisitVariableExpr(Expr.Variable expr) {
+        return LookUpVariable(expr.name, expr);
+    }
+
+    private object LookUpVariable(Token name, Expr expr) {
+        if(locals.ContainsKey(expr)) {
+            return environment.GetAt(locals[expr], name.lexeme);
+        } else {
+            return globals.Get(name);
+        }
     }
 
     private void CheckNumberOperands(Token op, object left, object right) {
@@ -184,14 +208,14 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
         if(obj is bool) return (bool)obj;
         return true;
     }
-    public object visitGroupingExpr(Expr.Grouping expr) {
+    public object VisitGroupingExpr(Expr.Grouping expr) {
         return Evaluate(expr.expression);
     }
 
     private object Evaluate(Expr expr) {
         return expr.Accept(this);
     }
-    public object visitLiteralExpr(Expr.Literal expr) {
+    public object VisitLiteralExpr(Expr.Literal expr) {
         return expr.value;
     }
 }

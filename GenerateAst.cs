@@ -28,7 +28,7 @@ public class GenerateAst {
         content.Add("\tpublic interface Visitor<T> {");
         foreach(var type in types) {
             var typeName = type.Split(':')[0].Trim();
-            content.Add($"\t\tT visit{typeName}{baseName}({typeName} {baseName.ToLower()});");
+            content.Add($"\t\tT Visit{typeName}{baseName}({typeName} {baseName.ToLower()});");
         }
         content.Add("\t}");
     }

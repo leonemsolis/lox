@@ -26,6 +26,7 @@ public class Lox {
 
                 GenerateAst.DefineAst(outputDir, "Stmt", new List<string>() {
                     "Block      : List<Stmt> statements",
+                    "Class      : Token name, List<Stmt.Function> methods",
                     "Expression : Expr expression",
                     "Function   : Token name, List<Token> parameters, List<Stmt> body",
                     "If         : Expr condition, Stmt thenBranch, Stmt elseBranch",
@@ -72,6 +73,9 @@ public class Lox {
 
         if(hadError) return;
         // new AstPrinter().Print(statements);
+        Resolver resolver = new Resolver(interpreter);
+        resolver.Resolve(statements);
+        if(hadError) return;
         interpreter.Interpret(statements);
     }
 
