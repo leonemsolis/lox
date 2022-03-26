@@ -1,13 +1,12 @@
-fun makeCounter() {
-  var i = 0;
-  fun count() {
-    i = i + 1;
-    print(i);
+class Test {
+  init() {
+    this.a = 10;
   }
-
-  return count;
+  Add(hello) {
+    print(hello + this.a);
+  }
 }
 
-var counter = makeCounter();
-counter(); // "1".
-counter(); // "2".
+var B = Test();
+print(B.a);
+B.Add(13);

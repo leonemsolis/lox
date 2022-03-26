@@ -15,7 +15,7 @@ var a = "global";
 using System;
 using System.Collections.Generic;
 public class Resolver : Expr.Visitor<object>, Stmt.Visitor<object> {
-    private enum FunctionType {NONE, FUNCTION, METHOD};
+    private enum FunctionType {NONE, FUNCTION, METHOD, INITIALIZER};
     private enum ClassType {NONE, CLASS};
     private ClassType currentClass = ClassType.NONE;
     private Interpreter interpreter;
@@ -44,6 +44,9 @@ public class Resolver : Expr.Visitor<object>, Stmt.Visitor<object> {
         scopes.Peek()["this"] = true;
         foreach(var method in stmt.methods) {
             FunctionType declaration = FunctionType.METHOD;
+            if(method.name.lexeme == "init") {
+                declaration = FunctionType.INITIALIZER;
+            }
             ResolveFunction(method, declaration);
         }
         EndScope();
@@ -103,6 +106,7 @@ public class Resolver : Expr.Visitor<object>, Stmt.Visitor<object> {
 
     private void ResolveLocal(Expr expr, Token name) {
         var s = scopes.ToArray();
+        Array.Reverse(s);
         for(int i = s.Length - 1; i >=0; i--) {
             if(s[i].ContainsKey(name.lexeme)) {
                 interpreter.Resolve(expr, s.Length - 1 - i);
@@ -164,7 +168,12 @@ public class Resolver : Expr.Visitor<object>, Stmt.Visitor<object> {
 
     public object VisitReturnStmt(Stmt.Return stmt) {
         if(currentFunction == FunctionType.NONE) Lox.Error(stmt.keyword, "Can't return from top-level code.");
-        if(stmt.value != null) Resolve(stmt.value);
+        if(stmt.value != null) {
+            if(currentFunction == FunctionType.INITIALIZER) {
+                Lox.Error(stmt.keyword, "Can't return a value from an initializer.");
+            }
+            Resolve(stmt.value);
+        }
         return null;
     }
 
