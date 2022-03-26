@@ -32,7 +32,20 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
     }
 
     public object VisitClassStmt(Stmt.Class stmt) {
+        object superclass = null;
+        if(stmt.superclass != null) {
+            superclass = Evaluate(stmt.superclass);
+            if(!(superclass is LoxClass)) {
+                throw new RuntimeException(stmt.superclass.name, "Superclass must be a class.");
+            }
+        }
+
         environment.Define(stmt.name.lexeme, null);
+
+        if(stmt.superclass != null) {
+            environment = new Environment(environment);
+            environment.Define("super", superclass);
+        }
 
         Dictionary<string, LoxFunction> methods = new Dictionary<string, LoxFunction>();
         foreach(var method in stmt.methods) {
@@ -40,7 +53,10 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
             methods[method.name.lexeme] = function;
         }
 
-        LoxClass klass = new LoxClass(stmt.name.lexeme, methods);
+        LoxClass klass = new LoxClass(stmt.name.lexeme, superclass as LoxClass, methods);
+        if(superclass != null) {
+            environment = environment.enclosing;
+        }
         environment.Assign(stmt.name, klass);
         return null;
     }
@@ -170,6 +186,17 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
         object value = Evaluate(expr.value);
         (obj as LoxInstance).Set(expr.name, value);
         return value;
+    }
+
+    public object VisitSuperExpr(Expr.Super expr) {
+        int distance = locals[expr];
+        LoxClass superclass = environment.GetAt(distance, "super") as LoxClass;
+        LoxInstance obj = environment.GetAt(distance - 1, "this") as LoxInstance;
+        LoxFunction method = superclass.FindMethod(expr.method.lexeme);
+        if(method == null) {
+            throw new RuntimeException(expr.method, "Undefined property ;'" + expr.method.lexeme +"'.") ;
+        }
+        return method.Bind(obj);
     }
 
     public object VisitThisExpr(Expr.This expr) {

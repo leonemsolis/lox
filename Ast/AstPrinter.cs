@@ -86,6 +86,10 @@ public class AstPrinter : Stmt.Visitor<string>, Expr.Visitor<string> {
     public string VisitThisExpr(Expr.This expr) {
         return "THIS";
     }
+    // TODO: Super
+    public string VisitSuperExpr(Expr.Super expr) {
+        return "SUPER";
+    }
     public string VisitUnaryExpr(Expr.Unary expr) {
         return Parenthesize(expr.op.lexeme, expr.right);
     }

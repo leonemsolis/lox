@@ -2,14 +2,17 @@ using System.Collections.Generic;
 
 public class LoxClass : LoxCallable {
     public string name;
+    public LoxClass superclass;
     private Dictionary<string, LoxFunction> methods;
-    public LoxClass(string name, Dictionary<string, LoxFunction> methods) {
+    public LoxClass(string name, LoxClass superclass, Dictionary<string, LoxFunction> methods) {
         this.name = name;
+        this.superclass = superclass;
         this.methods = methods;
     }
 
     public LoxFunction FindMethod(string name) {
         if(methods.ContainsKey(name)) return methods[name];
+        if(superclass != null) return superclass.FindMethod(name);
         return null;
     }
 
