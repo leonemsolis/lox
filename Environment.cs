@@ -1,15 +1,19 @@
 using System.Collections.Generic;
 public class Environment {
+    public static int EnvIndex = 0;
+    public int Index;
     public Environment enclosing;
+    private Dictionary<string, object> values = new Dictionary<string, object>();
+    
     public Environment() {
+        Index = Environment.EnvIndex++;
         enclosing = null;
     }
 
     public Environment(Environment enclosing) {
+        Index = Environment.EnvIndex++;
         this.enclosing = enclosing;
     }
-
-    private Dictionary<string, object> values = new Dictionary<string, object>();
 
     public void Define(string name, object value) => values[name] = value;
 

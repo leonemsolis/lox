@@ -44,15 +44,15 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
         environment.Assign(stmt.name, klass);
         return null;
     }
-    public void ExecuteBlock(List<Stmt>statements, Environment environment) {
-        Environment previous = this.environment;
+    public void ExecuteBlock(List<Stmt>statements, Environment env) {
+        Environment previous = environment;
         try {
-            this.environment = environment;
+            environment = env;
             foreach(var statement in statements) {
                 Execute(statement);
             }
         } finally {
-            this.environment = previous;
+            environment = previous;
         }
     }
     public object VisitFunctionStmt(Stmt.Function stmt) {
@@ -170,6 +170,10 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object> {
         object value = Evaluate(expr.value);
         (obj as LoxInstance).Set(expr.name, value);
         return value;
+    }
+
+    public object VisitThisExpr(Expr.This expr) {
+        return LookUpVariable(expr.keyword, expr);
     }
 
     public object VisitUnaryExpr(Expr.Unary expr) {

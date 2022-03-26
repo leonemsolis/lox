@@ -41,6 +41,11 @@ public class BuiltInClock : LoxCallable {
 public class LoxFunction : LoxCallable {
     private Stmt.Function declaration;
     private Environment closure;
+    public LoxFunction Bind(LoxInstance instance) {
+        Environment environment = new Environment(closure);
+        environment.Define("this", instance);
+        return new LoxFunction(declaration, environment);
+    }
     public LoxFunction(Stmt.Function declaration, Environment closure) {
         this.declaration = declaration;
         this.closure = closure;

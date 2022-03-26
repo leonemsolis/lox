@@ -16,6 +16,8 @@ using System;
 using System.Collections.Generic;
 public class Resolver : Expr.Visitor<object>, Stmt.Visitor<object> {
     private enum FunctionType {NONE, FUNCTION, METHOD};
+    private enum ClassType {NONE, CLASS};
+    private ClassType currentClass = ClassType.NONE;
     private Interpreter interpreter;
 
     // bool - variable has been resolved
@@ -35,11 +37,17 @@ public class Resolver : Expr.Visitor<object>, Stmt.Visitor<object> {
     }
 
     public object VisitClassStmt(Stmt.Class stmt) {
+        ClassType enclosingClass = currentClass;
+        currentClass = ClassType.CLASS;
         Declare(stmt.name);
+        BeginScope();
+        scopes.Peek()["this"] = true;
         foreach(var method in stmt.methods) {
             FunctionType declaration = FunctionType.METHOD;
             ResolveFunction(method, declaration);
         }
+        EndScope();
+        currentClass = enclosingClass;
         return null;
     }
 
@@ -202,6 +210,15 @@ public class Resolver : Expr.Visitor<object>, Stmt.Visitor<object> {
     public object VisitSetExpr(Expr.Set expr) {
         Resolve(expr.value);
         Resolve(expr.obj);
+        return null;
+    }
+
+    public object VisitThisExpr(Expr.This expr) {
+        if(currentClass == ClassType.NONE) {
+            Lox.Error(expr.keyword, "Can't use 'this' outside of a class.");
+            return null;
+        }
+        ResolveLocal(expr, expr.keyword);
         return null;
     }
 

@@ -78,8 +78,13 @@ public class AstPrinter : Stmt.Visitor<string>, Expr.Visitor<string> {
         return "GET";
     }
     // TODO: Set
-    public  string VisitSetExpr(Expr.Set expr) {
+    public string VisitSetExpr(Expr.Set expr) {
         return "SET";
+    }
+
+    // TODO: This
+    public string VisitThisExpr(Expr.This expr) {
+        return "THIS";
     }
     public string VisitUnaryExpr(Expr.Unary expr) {
         return Parenthesize(expr.op.lexeme, expr.right);

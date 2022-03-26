@@ -281,9 +281,8 @@ public class Parser {
         if(Match(TokenType.FALSE)) return new Expr.Literal(false);
         if(Match(TokenType.TRUE)) return new Expr.Literal(true);
         if(Match(TokenType.NIL)) return new Expr.Literal(null);
-
         if(Match(TokenType.NUMBER, TokenType.STRING)) return new Expr.Literal(Previous().literal);
-
+        if(Match(TokenType.THIS)) return new Expr.This(Previous());
         if(Match(TokenType.IDENTIFIER)) return new Expr.Variable(Previous());
 
         if(Match(TokenType.LEFT_PAREN)) {
